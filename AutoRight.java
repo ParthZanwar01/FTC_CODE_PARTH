@@ -50,65 +50,29 @@ public class AutoRight extends OpMode {
 
         gamePreload = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), new Point(-15, -3, Point.CARTESIAN)));
         gamePreload.setConstantHeadingInterpolation(0);
-        clipOnFirstClip = new Path(new BezierLine(new Point(-15,-3, Point.CARTESIAN), new Point(-32.33,-17, Point.CARTESIAN)));
+        clipOnFirstClip = new Path(new BezierLine(new Point(-15,-3, Point.CARTESIAN), new Point(-31,-17, Point.CARTESIAN)));
         clipOnFirstClip.setConstantHeadingInterpolation(0);
-        CurveToFirstBlockPart1 = new Path(new BezierCurve(new Point(-32.33, -17, Point.CARTESIAN), new Point(-3, 21.13, Point.CARTESIAN)));
+        CurveToFirstBlockPart1 = new Path(new BezierCurve(new Point(-31, -17, Point.CARTESIAN), new Point(-3, 21.13, Point.CARTESIAN)));
         CurveToFirstBlockPart1.setConstantHeadingInterpolation(0);
         CurveToFirstBlockPart2 = new Path(new BezierCurve(new Point(-3, 21.13, Point.CARTESIAN), new Point(-55, 21.13, Point.CARTESIAN), new Point(-55, 30.00, Point.CARTESIAN)));
         CurveToFirstBlockPart2.setConstantHeadingInterpolation(0);
-        /*
-        PathToBlock1Part1 = new Path(new BezierLine(new Point(-32.33, -17, Point.CARTESIAN), new Point(-3, 21.13, Point.CARTESIAN)));
-        PathToBlock1Part1.setConstantHeadingInterpolation(0);
-        PathToBlock1Part2 = new Path(new BezierLine(new Point(-3, 21.13, Point.CARTESIAN), new Point(-51.98, 21.13, Point.CARTESIAN)));
-        PathToBlock1Part2.setConstantHeadingInterpolation(0);
-        PathToBlock1Part3 = new Path(new BezierLine(new Point(-51.98, 21.13, Point.CARTESIAN), new Point(-51.98, 30.00, Point.CARTESIAN)));
-        PathToBlock1Part3.setConstantHeadingInterpolation(0);
-         */
         PushFirstBlockBack = new Path(new BezierLine(new Point(-55, 30.00, Point.CARTESIAN), new Point(-5, 30.00, Point.CARTESIAN)));
         PushFirstBlockBack.setConstantHeadingInterpolation(0);
         CurveToSecondBlock = new Path(new BezierCurve(new Point(-5, 30.0, Point.CARTESIAN), new Point(-55, 28.0, Point.CARTESIAN), new Point(-55, 37.00, Point.CARTESIAN)));
         CurveToSecondBlock.setConstantHeadingInterpolation(0);
-        /*
-        PathToBlock2Part1 = new Path(new BezierLine(new Point(0, 30.0, Point.CARTESIAN), new Point(-51.98, 28.0, Point.CARTESIAN)));
-        PathToBlock2Part1.setConstantHeadingInterpolation(0);
-        PathToBlock2Part2 = new Path(new BezierLine(new Point(-51.98, 30.0, Point.CARTESIAN), new Point(-51.98, 41.00)));
-        PathToBlock2Part2.setConstantHeadingInterpolation(0);
-         */
         CurveToPushAndGrabSecond = new Path(new BezierCurve(new Point(-52, 41.00, Point.CARTESIAN), new Point(-4, 41.00, Point.CARTESIAN)));
         CurveToPushAndGrabSecond.setConstantHeadingInterpolation(0);
-        /*
-        PushSecondBlockBack = new Path(new BezierLine(new Point(-52, 41.00, Point.CARTESIAN), new Point(-8.49, 41.00, Point.CARTESIAN)));
-        PushSecondBlockBack.setConstantHeadingInterpolation(0);
-        GrabSecondClip = new Path(new BezierLine(new Point(-8.49, 41.00, Point.CARTESIAN), new Point(-4, 25.42, Point.CARTESIAN)));
-        GrabSecondClip.setConstantHeadingInterpolation(0);
-         */
-        CurveToHookSecond = new Path(new BezierCurve(new Point(-5, 25.42, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-33, -17, Point.CARTESIAN)));
+        CurveToHookSecond = new Path(new BezierCurve(new Point(-5, 25.42, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-31, -17, Point.CARTESIAN)));
         CurveToHookSecond.setConstantHeadingInterpolation(0);
-        /*
-        ClipOnSecondClipPart1 = new Path(new BezierLine(new Point(-4.1, 25.42, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN)));
-        ClipOnSecondClipPart1.setConstantHeadingInterpolation(0);
-        ClipOnSecondClipPart2 = new Path(new BezierLine(new Point(-15, -6, Point.CARTESIAN), new Point(-33, -17, Point.CARTESIAN)));
-        ClipOnSecondClipPart2.setConstantHeadingInterpolation(0);
-        */
-        GrabThirdClip = new Path(new BezierLine(new Point(-33, -17, Point.CARTESIAN), new Point(-5, 25.42, Point.CARTESIAN)));
+        GrabThirdClip = new Path(new BezierLine(new Point(-31, -17, Point.CARTESIAN), new Point(-5, 20.00, Point.CARTESIAN)));
         GrabThirdClip.setConstantHeadingInterpolation(0);
-        CurveToHookThird = new Path(new BezierCurve(new Point(-5, 25.42, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-33, -11, Point.CARTESIAN)));
+        CurveToHookThird = new Path(new BezierCurve(new Point(-5, 20.00, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-31, -11, Point.CARTESIAN)));
         CurveToHookThird.setConstantHeadingInterpolation(0);
-        /*
-        ClipOnThirdClipPart1 = new Path(new BezierLine(new Point(-5, 25.42, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN)));
-        ClipOnThirdClipPart1.setConstantHeadingInterpolation(0);
-        ClipOnThirdClipPart2 = new Path(new BezierLine(new Point(-15, -6, Point.CARTESIAN), new Point(-33, -11, Point.CARTESIAN)));
-        ClipOnThirdClipPart2.setConstantHeadingInterpolation(0);
-        */
-        CurveToGrabFourth = new Path(new BezierCurve(new Point(-32.33, -11, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-5.35, 25.42, Point.CARTESIAN)));
+        CurveToGrabFourth = new Path(new BezierCurve(new Point(-31, -11, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-5.35, 20.0, Point.CARTESIAN)));
         CurveToGrabFourth.setConstantHeadingInterpolation(0);
-        CurveToHookFourth = new Path(new BezierCurve(new Point(-5.5, 25.42, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-33, -12, Point.CARTESIAN)));
+        CurveToHookFourth = new Path(new BezierCurve(new Point(-5.5, 20.0, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-31, -12, Point.CARTESIAN)));
         CurveToHookFourth.setConstantHeadingInterpolation(0);
-        /*
-        ClipOnFourthClip = new Path(new BezierLine(new Point(-6, 25.42, Point.CARTESIAN), new Point(-33, -12, Point.CARTESIAN)));
-        ClipOnFourthClip.setConstantHeadingInterpolation(0);
-         */
-        ParkRobot = new Path(new BezierLine(new Point(-32.33, -12, Point.CARTESIAN), new Point(-3.75, 41.00, Point.CARTESIAN)));
+        ParkRobot = new Path(new BezierLine(new Point(-31, -12, Point.CARTESIAN), new Point(-3.75, 41.00, Point.CARTESIAN)));
         ParkRobot.setConstantHeadingInterpolation(0);
         follower.setMaxPower(1.0);
 
@@ -292,11 +256,11 @@ public class AutoRight extends OpMode {
                     timerReset = false;
                 }
 
-                if (timer.milliseconds() > 2500) {
+                if (timer.milliseconds() > 2250) {
                     ScoringClaw.setPosition(0.8);
                 }
 
-                if (timer.milliseconds() > 3000) {
+                if (timer.milliseconds() > 2750) {
                     ScoringArm.setPosition(0.15);
                     follower.followPath(CurveToGrabFourth);
                     timerReset = true;
@@ -341,6 +305,9 @@ public class AutoRight extends OpMode {
                 }
                 if (timer.milliseconds() > 2500){
                     ScoringClaw.setPosition(0.8);
+                    timerReset = true;
+                    setStep(15);
+                    follower.followPath(ParkRobot);
                 }
                 break;
             }
