@@ -16,15 +16,21 @@ public class MainCode extends OpMode {
 
     DcMotor rightBack, leftBack, leftFront, rightFront, ScoringSlidesMotor, SubSlides;
     Servo ScoringWrist, ScoringArm, ScoringClaw, SubAngle, SubWrist, SubClaw;
+
     static final double COUNTS_PER_MOTOR_REV_ScoringSlides = 537.6;
-    static final double INCHES_PER_REV_ScoringSlides = (13.625 - 9.375);        // Slide moves 1 inch per revolution
+    static final double INCHES_PER_REV_ScoringSlides = 3.6;        // Slide moves 1 inch per revolution
     static final double COUNTS_PER_INCH_ScoringSlides = COUNTS_PER_MOTOR_REV_ScoringSlides / INCHES_PER_REV_ScoringSlides;
+
     static final double COUNTS_PER_MOTOR_REV_SubSlides = 384.5;
     static final double INCHES_PER_REV_SubSlides = 5.15;
     static final double COUNTS_PER_INCH_SubSlides = COUNTS_PER_MOTOR_REV_SubSlides / INCHES_PER_REV_SubSlides;
+
     ElapsedTime timer = new ElapsedTime();
+
     boolean pressed = false;
     boolean transferPressed = false;
+
+    int targetPositionScoringSlides = 0;
 
     @Override
     public void init() {
@@ -50,6 +56,12 @@ public class MainCode extends OpMode {
 
         //Set Slides Directions
         SubSlides.setDirection(DcMotor.Direction.REVERSE);
+        ScoringSlidesMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        //Set Slide Modes
+        ScoringSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        ScoringSlidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Override
@@ -84,27 +96,40 @@ public class MainCode extends OpMode {
         if (gamepad2.right_trigger > 0.1) {
             timer.reset();
             pressed = true;
+        }
 
+        if (gamepad1.options){
+            if (leftBack.getDirection() == DcMotorSimple.Direction.FORWARD){
+                leftFront.setDirection(DcMotor.Direction.REVERSE);
+                rightFront.setDirection(DcMotor.Direction.FORWARD);
+                leftBack.setDirection(DcMotor.Direction.REVERSE);
+                rightBack.setDirection(DcMotor.Direction.FORWARD);
+            } else if (leftBack.getDirection() == DcMotorSimple.Direction.REVERSE) {
+                leftFront.setDirection(DcMotor.Direction.FORWARD);
+                rightFront.setDirection(DcMotor.Direction.REVERSE);
+                leftBack.setDirection(DcMotor.Direction.FORWARD);
+                rightBack.setDirection(DcMotor.Direction.REVERSE);
+            }
         }
 
         if (pressed){
-            if (timer.milliseconds() > 0) ScoringWrist.setPosition(0.57);
-            if (timer.milliseconds() > 1000) ScoringArm.setPosition(0.1);
+            if (timer.milliseconds() > 0) ScoringWrist.setPosition(1);
+            if (timer.milliseconds() > 1000) ScoringArm.setPosition(0.15);
             if (timer.milliseconds() > 2000){
-                ScoringWrist.setPosition(0.95);
+                ScoringWrist.setPosition(0.16);
                 pressed = false;
             }
         }
 
         // To score the specimen
         else if (gamepad2.left_trigger > 0.1) {
-            ScoringWrist.setPosition(0.0);
-            ScoringArm.setPosition(0.9);
-            ScoringWrist.setPosition(0.57);
+            ScoringWrist.setPosition(1.0);
+            ScoringArm.setPosition(0.95);
         }
 
         // To close the claw
         if (gamepad2.left_bumper) {
+
             ScoringClaw.setPosition(0.55);
         }
         // To open the claw
@@ -145,27 +170,21 @@ public class MainCode extends OpMode {
             SubAngle.setPosition(0.4);
         }
 
-        int currentPosition2 = ScoringSlidesMotor.getCurrentPosition();
-        if (gamepad2.dpad_up) {
-            ScoringSlidesMotor.setPower(1.0); // Set power to move slides up
-            //targetPosition2 = currentPosition2; // Update target position while moving
-        } else if (gamepad2.dpad_down) {
-            ScoringSlidesMotor.setPower(-1); // Set power to move slides down
-            //targetPosition2 = currentPosition2; // Update target position while moving
-        } else {
-            ScoringSlidesMotor.setPower(0);
-        /*
-        // If position drifts, apply power to correct it
-        int positionError = targetPosition2 - currentPosition2;
-        double holdPower = positionError * 0.01; // Small proportional gain to correct drift
-
-        // Clamp holdPower within a small range to prevent oscillation
-        holdPower = Math.max(-0.2, Math.min(holdPower, 0.2));
-
-        // Apply the hold power to maintain target position
-        ScoringSlidesMotor.setPower(holdPower);
-        */
+        if (gamepad2.dpad_up) { // Set power to move slides up
+            ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            ScoringSlidesMotor.setPower(1.0);
+            targetPositionScoringSlides = ScoringSlidesMotor.getCurrentPosition();
+        } else if (gamepad2.dpad_down) { // Set power to move slides down
+            ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            ScoringSlidesMotor.setPower(-1.0);
+            targetPositionScoringSlides = ScoringSlidesMotor.getCurrentPosition();
+        }else {
+            ScoringSlidesMotor.setTargetPosition(targetPositionScoringSlides);
+            ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            ScoringSlidesMotor.setPower(1.0);
         }
+
+
 
         if (gamepad1.dpad_up) {
             SubSlides.setPower(1.0); // Set power to move slides up
@@ -175,17 +194,6 @@ public class MainCode extends OpMode {
             //targetPosition2 = currentPosition2; // Update target position while moving
         } else {
             SubSlides.setPower(0);
-        /*
-        // If position drifts, apply power to correct it
-        int positionError = targetPosition2 - currentPosition2;
-        double holdPower = positionError * 0.01; // Small proportional gain to correct drift
-
-        // Clamp holdPower within a small range to prevent oscillation
-        holdPower = Math.max(-0.2, Math.min(holdPower, 0.2));
-
-        // Apply the hold power to maintain target position
-        ScoringSlidesMotor.setPower(holdPower);
-        */
         }
 
         if (gamepad2.share) {
@@ -195,7 +203,7 @@ public class MainCode extends OpMode {
 
         if (transferPressed){
             if (timer.milliseconds() > 0 && timer.milliseconds() < 500){
-                moveSubSlidesInches(1.0, 7.55, false);
+                moveSubSlidesInches(1.0, 8, false);
             }
             if (timer.milliseconds() > 0 && timer.milliseconds() < 3000) {
                 SubAngle.setPosition(0.2);
@@ -208,36 +216,28 @@ public class MainCode extends OpMode {
                 SubClaw.setPosition(0.045);
             }
             if (timer.milliseconds() > 2000 && timer.milliseconds() < 3000) {
-                ScoringWrist.setPosition(0.0);
+                ScoringWrist.setPosition(1.0);
             }
             if (timer.milliseconds() > 2500 && timer.milliseconds() < 4000) {
-                ScoringArm.setPosition(0.1);
+                ScoringArm.setPosition(0.15);
                 ScoringClaw.setPosition(0.8);
             }
             if (timer.milliseconds() > 3000) {
-                ScoringWrist.setPosition(0.93);
+                ScoringWrist.setPosition(0.16);
                 SubAngle.setPosition(0.85);
             }
 
             if (timer.milliseconds() > 3500) {
                 SubWrist.setPosition(0.0);
             }
-            if (timer.milliseconds() > 400){
+            if (timer.milliseconds() > 4000){
                 ScoringClaw.setPosition(0.55);
             }
             if (timer.milliseconds() > 4500) {
                 SubClaw.setPosition(0.0);
                 transferPressed = false;
             }
-
-            gamepad2.rumble(2000);
         }
-
-        if (gamepad2.options){
-            ScoringWrist.setPosition(0.63);
-        }
-
-
         }
 
         public void moveSubSlidesInches(double power, double inches, boolean hold){
@@ -273,5 +273,40 @@ public class MainCode extends OpMode {
                 SubSlides.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
         }
+
+    public void moveScoringSlidesInches(double power, double inches, boolean hold){
+        int targetPosition = (int) (inches * COUNTS_PER_INCH_ScoringSlides);
+
+        // Reset encoder and set target position
+        ScoringSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        ScoringSlidesMotor.setTargetPosition(targetPosition);
+        ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // Apply power to the motor
+        ScoringSlidesMotor.setPower(Math.abs(power));
+
+        // Wait until the motor reaches the target position or timeout occurs
+        //long startTime = System.currentTimeMillis();
+        //long timeout = 5000; // 5-second timeout
+
+        while (ScoringSlidesMotor.isBusy()) {
+            telemetry.addData("Target Position (Inches)", inches);
+            telemetry.addData("Target Encoder Count", targetPosition);
+            telemetry.addData("Current Position", ScoringSlidesMotor.getCurrentPosition());
+            telemetry.update();
+        }
+
+        // Stop motor
+        ScoringSlidesMotor.setPower(0);
+
+        // Optionally hold position
+        if (hold) {
+            ScoringSlidesMotor.setTargetPosition(targetPosition);
+            ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            ScoringSlidesMotor.setPower(1.0);
+        } else {
+            ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        }
+    }
 
 }
