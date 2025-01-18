@@ -1,4 +1,5 @@
 package pedroPathing.actual_code;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.pathgen.BezierCurve;
@@ -22,36 +23,26 @@ import pedroPathing.constants.LConstants;
 public class AutoLeft extends OpMode {
 
 
-    private int step = 0;
-
-    private Follower follower;
-
-    private Servo ScoringClaw, ScoringWrist, ScoringArm, SubClaw, SubWrist, SubAngle;
-
-    private DcMotor ScoringSlidesMotor, SubSlides;
-
     static final double COUNTS_PER_MOTOR_REV_ScoringSlides = 537.6;
     static final double INCHES_PER_REV_ScoringSlides = 3.6;        // Slide moves 1 inch per revolution
     static final double COUNTS_PER_INCH_ScoringSlides = COUNTS_PER_MOTOR_REV_ScoringSlides / INCHES_PER_REV_ScoringSlides;
-    static int TARGET_POSITION_SCORING_SLIDES = 0;
-
     static final double COUNTS_PER_MOTOR_REV_SubSlides = 384.5;
     static final double INCHES_PER_REV_SubSlides = 5.15;
     static final double COUNTS_PER_INCH_SubSlides = COUNTS_PER_MOTOR_REV_SubSlides / INCHES_PER_REV_SubSlides;
+    static int TARGET_POSITION_SCORING_SLIDES = 0;
     static double TARGET_POSITION_SUB_SLIDES = 0;
-
-
-
-    private Point beforeScore, Score;
-
-    private Path scorePreload;
-    private Path gamePreload;
-    private Path CurveToFirstBlock, CurveToScoreFirst, CurveToSecondBlock, CurveToScoreSecond, CurveToThirdBlock, CurveToScoreThird;
-
     ElapsedTime timer = new ElapsedTime();
     boolean timerReset;
     boolean ScoringSlideReset;
     boolean SubSlideReset;
+    private int step = 0;
+    private Follower follower;
+    private Servo ScoringClaw, ScoringWrist, ScoringArm, SubClaw, SubWrist, SubAngle;
+    private DcMotor ScoringSlidesMotor, SubSlides;
+    private Point beforeScore, Score;
+    private Path scorePreload;
+    private Path gamePreload;
+    private Path CurveToFirstBlock, CurveToScoreFirst, CurveToSecondBlock, CurveToScoreSecond, CurveToThirdBlock, CurveToScoreThird;
 
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
@@ -80,8 +71,7 @@ public class AutoLeft extends OpMode {
         ScoringSlidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         beforeScore = new Point(0, 0.1, Point.CARTESIAN);
-        Score = new Point(0, 12.73, Point.CARTESIAN);
-
+        Score = new Point(0, 5, Point.CARTESIAN);
 
 
         gamePreload = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), beforeScore));
@@ -90,13 +80,13 @@ public class AutoLeft extends OpMode {
         scorePreload = new Path(new BezierLine(beforeScore, Score));
         scorePreload.setConstantHeadingInterpolation(0);
 
-        CurveToFirstBlock =  new Path(new BezierCurve(Score, beforeScore, new Point(11.7647, 8.3446, Point.CARTESIAN)));
+        CurveToFirstBlock = new Path(new BezierCurve(Score, beforeScore, new Point(11.7647, 1, Point.CARTESIAN)));
         CurveToFirstBlock.setConstantHeadingInterpolation(0);
 
-        CurveToScoreFirst = new Path(new BezierCurve(new Point(11.7647, 8.3446, Point.CARTESIAN), beforeScore, Score));
+        CurveToScoreFirst = new Path(new BezierCurve(new Point(11.7647, 1, Point.CARTESIAN), beforeScore, Score));
         CurveToScoreFirst.setConstantHeadingInterpolation(0);
 
-        CurveToSecondBlock = new Path(new BezierCurve(Score, beforeScore, new Point(11.7647, 17.0862, Point.CARTESIAN)));
+        CurveToSecondBlock = new Path(new BezierCurve(Score, beforeScore, new Point(11.7647, 2, Point.CARTESIAN)));
         CurveToSecondBlock.setConstantHeadingInterpolation(0);
 
         CurveToScoreSecond = new Path(new BezierCurve(new Point(11.7647, 17.0862, Point.CARTESIAN), beforeScore, Score));
@@ -110,18 +100,18 @@ public class AutoLeft extends OpMode {
 
     }
 
-    public void loop(){
+    public void loop() {
         follower.update();
         autonomousUpdate();
     }
 
-    public void setStep(int step){
+    public void setStep(int step) {
         this.step = step;
     }
 
-    public void autonomousUpdate(){
-        switch (step){
-            case (0) : {
+    public void autonomousUpdate() {
+        switch (step) {
+            case (0): {
                 follower.followPath(gamePreload);
                 setStep(1);
                 timerReset = true;
@@ -129,27 +119,25 @@ public class AutoLeft extends OpMode {
                 SubSlideReset = true;
                 break;
             }
-            case (1) : {
-                if (timerReset){
+            case (1): {
+                if (timerReset) {
                     timer.reset();
                     timerReset = false;
                 }
-
-                if (ScoringSlideReset){
-                    moveScoringSlidesInches(1.0, 10, false);
-                    ScoringSlideReset = false;
-                }
-
-                if (timer.milliseconds() > 0){
+                if (timer.milliseconds() > 0) {
                     ScoringClaw.setPosition(0.55);
-                    ScoringWrist.setPosition(1.0);
+                    ScoringWrist.setPosition(0.9);
                 }
-                if (timer.milliseconds() > 500){
+                if (timer.milliseconds() > 500) {
                     ScoringArm.setPosition(0.5);
                 }
-
-
-                if (timer.milliseconds() > 3000){
+                if (timer.milliseconds() > 1000) {
+                    if (ScoringSlideReset) {
+                        moveScoringSlidesInches(1.0, 3161);
+                        ScoringSlideReset = false;
+                    }
+                }
+                if (timer.milliseconds() > 3000) {
                     follower.followPath(scorePreload);
                     timerReset = true;
                     ScoringSlideReset = true;
@@ -158,31 +146,68 @@ public class AutoLeft extends OpMode {
                 break;
             }
 
-            case (2) : {
-                if (timerReset){
+            case (2): {
+                if (timerReset) {
                     timer.reset();
                     timerReset = false;
                 }
 
-                if (timer.milliseconds() > 0){
+                if (timer.milliseconds() > 1000) {
                     ScoringClaw.setPosition(0.8);
                 }
 
-                if (timer.milliseconds() > 1000){
+                if (timer.milliseconds() > 2000) {
                     follower.followPath(CurveToFirstBlock);
-                    setStep(-1);
+                    setStep(3);
                     timerReset = true;
                 }
                 break;
             }
-            case (3) : {
+            case (3): {
+                if (timerReset) {
+                    timer.reset();
+                    timerReset = false;
+                }
+
+                if (timer.milliseconds() > 0) {
+                    if (ScoringSlideReset) {
+                        moveScoringSlidesInches(1.0, 0);
+                        ScoringSlideReset = false;
+                    }
+                }
+
+                if (timer.milliseconds() > 1000) {
+                    if (SubSlideReset){
+                        moveSubSlidesInches(1.0, 2300);
+                        SubSlideReset = false;
+                    }
+                }
+
+                if (timer.milliseconds() > 1500){
+                    SubWrist.setPosition(0.0);
+                    SubWrist.setPosition(0.66);
+                }
+
+                if (timer.milliseconds() > 2000){
+                    SubClaw.setPosition(0.045);
+                }
+                if (timer.milliseconds() > 2500){
+                    SubWrist.setPosition(0.0);
+                    moveSubSlidesInches(1.0, 0);
+                }
+
+                if (timer.milliseconds() > 3000){
+                    setStep(-1);
+                    SubSlideReset = true;
+                    ScoringSlideReset = true;
+                    timerReset = true;
+                }
                 break;
             }
         }
     }
 
-    public void moveSubSlidesInches(double power, double inches, boolean hold){
-        int targetPosition = (int) (inches * COUNTS_PER_INCH_SubSlides);
+    public void moveSubSlidesInches(double power, int targetPosition) {
 
         // Reset encoder and set target position
         SubSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -192,31 +217,19 @@ public class AutoLeft extends OpMode {
         // Apply power to the motor
         SubSlides.setPower(Math.abs(power));
 
-        // Wait until the motor reaches the target position or timeout occurs
-        //long startTime = System.currentTimeMillis();
-        //long timeout = 5000; // 5-second timeout
-
         while (SubSlides.isBusy()) {
-            telemetry.addData("Target Position (Inches)", inches);
             telemetry.addData("Target Encoder Count", targetPosition);
             telemetry.addData("Current Position", SubSlides.getCurrentPosition());
             telemetry.update();
+            TARGET_POSITION_SUB_SLIDES = SubSlides.getTargetPosition();
         }
 
-        // Stop motor
-        SubSlides.setPower(0);
-
-        // Optionally hold position
-        if (hold) {
-            SubSlides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            SubSlides.setPower(0.02); // Small power to counteract gravity
-        } else {
-            SubSlides.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        }
+        SubSlides.setTargetPosition((int) TARGET_POSITION_SUB_SLIDES);
+        SubSlides.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        SubSlides.setPower(1.0);
     }
 
-    public void moveScoringSlidesInches(double power, double inches, boolean hold){
-        int targetPosition = (int) (inches * COUNTS_PER_INCH_ScoringSlides);
+    public void moveScoringSlidesInches(double power, int targetPosition) {
 
         // Reset encoder and set target position
         ScoringSlidesMotor.setTargetPosition(targetPosition);
@@ -227,7 +240,6 @@ public class AutoLeft extends OpMode {
 
 
         while (ScoringSlidesMotor.isBusy()) {
-            telemetry.addData("Target Position (Inches)", inches);
             telemetry.addData("Target Encoder Count", targetPosition);
             telemetry.addData("Current Position", ScoringSlidesMotor.getCurrentPosition());
             telemetry.update();
@@ -237,6 +249,5 @@ public class AutoLeft extends OpMode {
         ScoringSlidesMotor.setTargetPosition(TARGET_POSITION_SCORING_SLIDES);
         ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         ScoringSlidesMotor.setPower(1.0);
-
     }
 }

@@ -31,6 +31,8 @@ public class AutoRight extends OpMode {
 
     ElapsedTime timer = new ElapsedTime();
     boolean timerReset;
+    
+    private double ScoringServoPosition = 0.96;
 
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
@@ -50,9 +52,9 @@ public class AutoRight extends OpMode {
 
         gamePreload = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), new Point(-15, -3, Point.CARTESIAN)));
         gamePreload.setConstantHeadingInterpolation(0);
-        clipOnFirstClip = new Path(new BezierLine(new Point(-15,-3, Point.CARTESIAN), new Point(-31,-17, Point.CARTESIAN)));
+        clipOnFirstClip = new Path(new BezierLine(new Point(-15,-3, Point.CARTESIAN), new Point(-31.5,-17, Point.CARTESIAN)));
         clipOnFirstClip.setConstantHeadingInterpolation(0);
-        CurveToFirstBlockPart1 = new Path(new BezierCurve(new Point(-31, -17, Point.CARTESIAN), new Point(-3, 21.13, Point.CARTESIAN)));
+        CurveToFirstBlockPart1 = new Path(new BezierCurve(new Point(-31.5, -17, Point.CARTESIAN), new Point(-3, 21.13, Point.CARTESIAN)));
         CurveToFirstBlockPart1.setConstantHeadingInterpolation(0);
         CurveToFirstBlockPart2 = new Path(new BezierCurve(new Point(-3, 21.13, Point.CARTESIAN), new Point(-55, 21.13, Point.CARTESIAN), new Point(-55, 30.00, Point.CARTESIAN)));
         CurveToFirstBlockPart2.setConstantHeadingInterpolation(0);
@@ -60,19 +62,19 @@ public class AutoRight extends OpMode {
         PushFirstBlockBack.setConstantHeadingInterpolation(0);
         CurveToSecondBlock = new Path(new BezierCurve(new Point(-5, 30.0, Point.CARTESIAN), new Point(-55, 28.0, Point.CARTESIAN), new Point(-55, 37.00, Point.CARTESIAN)));
         CurveToSecondBlock.setConstantHeadingInterpolation(0);
-        CurveToPushAndGrabSecond = new Path(new BezierCurve(new Point(-52, 41.00, Point.CARTESIAN), new Point(-4, 41.00, Point.CARTESIAN)));
+        CurveToPushAndGrabSecond = new Path(new BezierCurve(new Point(-52, 41.0, Point.CARTESIAN), new Point(-4.2, 41.0, Point.CARTESIAN)));
         CurveToPushAndGrabSecond.setConstantHeadingInterpolation(0);
-        CurveToHookSecond = new Path(new BezierCurve(new Point(-5, 25.42, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-31, -17, Point.CARTESIAN)));
+        CurveToHookSecond = new Path(new BezierCurve(new Point(-5, 25.42, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-30, -17, Point.CARTESIAN)));
         CurveToHookSecond.setConstantHeadingInterpolation(0);
-        GrabThirdClip = new Path(new BezierLine(new Point(-31, -17, Point.CARTESIAN), new Point(-5, 20.00, Point.CARTESIAN)));
+        GrabThirdClip = new Path(new BezierCurve(new Point(-30, -17, Point.CARTESIAN), new Point(-15,0, Point.CARTESIAN), new Point(-4.9, 20.00, Point.CARTESIAN)));
         GrabThirdClip.setConstantHeadingInterpolation(0);
-        CurveToHookThird = new Path(new BezierCurve(new Point(-5, 20.00, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-31, -11, Point.CARTESIAN)));
+        CurveToHookThird = new Path(new BezierCurve(new Point(-5, 20.00, Point.CARTESIAN), new Point(-10,0,Point.CARTESIAN),new Point(-15, -6, Point.CARTESIAN), new Point(-31, -15, Point.CARTESIAN)));
         CurveToHookThird.setConstantHeadingInterpolation(0);
-        CurveToGrabFourth = new Path(new BezierCurve(new Point(-31, -11, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-5.35, 20.0, Point.CARTESIAN)));
+        CurveToGrabFourth = new Path(new BezierCurve(new Point(-30, -9, Point.CARTESIAN), new Point(-10, 0, Point.CARTESIAN), new Point(-7,10, Point.CARTESIAN), new Point(-4.9, 20.0, Point.CARTESIAN)));
         CurveToGrabFourth.setConstantHeadingInterpolation(0);
-        CurveToHookFourth = new Path(new BezierCurve(new Point(-5.5, 20.0, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-31, -12, Point.CARTESIAN)));
+        CurveToHookFourth = new Path(new BezierCurve(new Point(-5.5, 20.0, Point.CARTESIAN),new Point(-10,7 , Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-31, -12, Point.CARTESIAN)));
         CurveToHookFourth.setConstantHeadingInterpolation(0);
-        ParkRobot = new Path(new BezierLine(new Point(-31, -12, Point.CARTESIAN), new Point(-3.75, 41.00, Point.CARTESIAN)));
+        ParkRobot = new Path(new BezierLine(new Point(-31, -12, Point.CARTESIAN), new Point(-3.75, 41.0, Point.CARTESIAN)));
         ParkRobot.setConstantHeadingInterpolation(0);
         follower.setMaxPower(1.0);
 
@@ -91,7 +93,7 @@ public class AutoRight extends OpMode {
     public void autonomousPathUpdate(){
         switch (step) {
             case (0): {
-                follower.followPath(gamePreload);
+                follower.followPath(gamePreload, true);
                 setStep(1);
                 timerReset = true;
                 break;
@@ -103,7 +105,7 @@ public class AutoRight extends OpMode {
                 }
                 if (timer.milliseconds() > 0) {
                     ScoringClaw.setPosition(0.55);
-                    ScoringWrist.setPosition(1.0);
+                    ScoringWrist.setPosition(ScoringServoPosition);
                     ScoringArm.setPosition(0.95);
                 }
                 if (timer.milliseconds() > 1750) {
@@ -161,6 +163,7 @@ public class AutoRight extends OpMode {
                     follower.followPath(CurveToSecondBlock, true);
                     timerReset = true;
                     setStep(6);
+                    follower.setMaxPower(0.7);
                 }
                 break;
             }
@@ -171,14 +174,15 @@ public class AutoRight extends OpMode {
                 }
 
                 if (timer.milliseconds() > 0 && timer.milliseconds() < 1000) {
-                    ScoringWrist.setPosition(1.0);
+                    ScoringWrist.setPosition(ScoringServoPosition);
                     ScoringArm.setPosition(0.15);
                 }
 
-                if (timer.milliseconds() > 1000) {
+                if (timer.milliseconds() > 2000) {
                     follower.followPath(CurveToPushAndGrabSecond, true);
                     timerReset = true;
                     setStep(7);
+                    follower.setMaxPower(1.0);
                 }
                 break;
             }
@@ -189,13 +193,13 @@ public class AutoRight extends OpMode {
                 }
 
                 if (timer.milliseconds() > 1500) {
-                    ScoringWrist.setPosition(0.16);
+                    ScoringWrist.setPosition(0.13);
                 }
                 if (timer.milliseconds() > 2000) {
                     ScoringClaw.setPosition(0.55);
                 }
                 if (timer.milliseconds() > 2500) {
-                    ScoringWrist.setPosition(1.0);
+                    ScoringWrist.setPosition(ScoringServoPosition);
                     ScoringArm.setPosition(0.95);
                 }
                 if (timer.milliseconds() > 3250) {
@@ -214,7 +218,7 @@ public class AutoRight extends OpMode {
                 if (timer.milliseconds() > 2500) {
                     ScoringClaw.setPosition(0.8);
                 }
-                if (timer.milliseconds() > 3000) {
+                if (timer.milliseconds() > 2800) {
                     ScoringArm.setPosition(0.15);
                     follower.followPath(GrabThirdClip, true);
                     timerReset = true;
@@ -228,19 +232,19 @@ public class AutoRight extends OpMode {
                     timerReset = false;
                 }
                 if (timer.milliseconds() > 0 && timer.milliseconds() < 2000) {
-                    ScoringWrist.setPosition(1.0);
+                    ScoringWrist.setPosition(ScoringServoPosition);
                 }
                 if (timer.milliseconds() > 1000 && timer.milliseconds() < 5000) {
                     ScoringArm.setPosition(0.15);
                 }
                 if (timer.milliseconds() > 2000 && timer.milliseconds() < 5000) {
-                    ScoringWrist.setPosition(0.16);
+                    ScoringWrist.setPosition(0.13);
                 }
                 if (timer.milliseconds() > 3000) {
-                    ScoringClaw.setPosition(0.55);
+                    ScoringClaw.setPosition(0.50);
                 }
                 if (timer.milliseconds() > 4000) {
-                    ScoringWrist.setPosition(1.0);
+                    ScoringWrist.setPosition(ScoringServoPosition);
                     ScoringArm.setPosition(0.95);
                 }
                 if (timer.milliseconds() > 4500) {
@@ -260,9 +264,9 @@ public class AutoRight extends OpMode {
                     ScoringClaw.setPosition(0.8);
                 }
 
-                if (timer.milliseconds() > 2750) {
+                if (timer.milliseconds() > 3000) {
                     ScoringArm.setPosition(0.15);
-                    follower.followPath(CurveToGrabFourth);
+                    follower.followPath(CurveToGrabFourth, true);
                     timerReset = true;
                     setStep(13);
                 }
@@ -275,42 +279,38 @@ public class AutoRight extends OpMode {
                 }
 
                 if (timer.milliseconds() > 0 && timer.milliseconds() < 2000) {
-                    ScoringWrist.setPosition(1.0);
+                    ScoringWrist.setPosition(ScoringServoPosition);
                 }
                 if (timer.milliseconds() > 1000 && timer.milliseconds() < 5000) {
                     ScoringArm.setPosition(0.15);
                 }
                 if (timer.milliseconds() > 2000 && timer.milliseconds() < 5000) {
-                    ScoringWrist.setPosition(0.16);
+                    ScoringWrist.setPosition(0.12);
                 }
                 if (timer.milliseconds() > 3000) {
                     ScoringClaw.setPosition(0.55);
                 }
                 if (timer.milliseconds() > 4000) {
-                    ScoringWrist.setPosition(1.0);
+                    ScoringWrist.setPosition(ScoringServoPosition);
                     ScoringArm.setPosition(0.95);
                 }
 
                 if (timer.milliseconds() > 4500) {
-                    follower.followPath(CurveToHookFourth);
+                    follower.followPath(CurveToHookFourth, true);
                     setStep(14);
                     timerReset = true;
                 }
                 break;
             }
-            case (14): {
-                if (timerReset) {
+            case (14):
+                if (timerReset){
                     timer.reset();
                     timerReset = false;
                 }
-                if (timer.milliseconds() > 2500){
+
+                if (timer.milliseconds() > 2000){
                     ScoringClaw.setPosition(0.8);
-                    timerReset = true;
-                    setStep(15);
-                    follower.followPath(ParkRobot);
                 }
-                break;
-            }
 
         }
     }

@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 // Read the following!!!
 // PLug in the servo into the 5th port of the control hub
-// Gamepad1 left bumper is zero, right bumper is 1
 @TeleOp(name = "ZeroOutServo")
 public class ZeroOutServo extends OpMode {
 
@@ -32,10 +31,10 @@ public class ZeroOutServo extends OpMode {
     public void loop() {
         //Zeroes out the servo
         if (gamepad1.left_bumper){
-            ScoringClaw.setPosition(0.55);
+            ScoringArm.setPosition(0.15);
         }
         else if (gamepad1.right_bumper){
-            ScoringClaw.setPosition(0.8);
+            ScoringArm.setPosition(0.95);
         }
     }
 }
