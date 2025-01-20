@@ -77,6 +77,7 @@ public class AutoRight extends OpMode {
         ParkRobot = new Path(new BezierLine(new Point(-31, -12, Point.CARTESIAN), new Point(-3.75, 41.0, Point.CARTESIAN)));
         ParkRobot.setConstantHeadingInterpolation(0);
         follower.setMaxPower(1.0);
+        timerReset = true;
 
     }
 
@@ -93,12 +94,6 @@ public class AutoRight extends OpMode {
     public void autonomousPathUpdate(){
         switch (step) {
             case (0): {
-                follower.followPath(gamePreload, true);
-                setStep(1);
-                timerReset = true;
-                break;
-            }
-            case (1): {
                 if (timerReset) {
                     timer.reset();
                     timerReset = false;
@@ -108,7 +103,20 @@ public class AutoRight extends OpMode {
                     ScoringWrist.setPosition(ScoringServoPosition);
                     ScoringArm.setPosition(0.95);
                 }
-                if (timer.milliseconds() > 1750) {
+                if (timer.milliseconds() > 500){
+                    follower.followPath(gamePreload, true);
+                    setStep(1);
+                    timerReset = true;
+                }
+                break;
+            }
+            case (1): {
+                if (timerReset) {
+                    timer.reset();
+                    timerReset = false;
+                }
+
+                if (timer.milliseconds() > 0) {
                     follower.followPath(clipOnFirstClip, true);
                     setStep(2);
                     timerReset = true;
@@ -120,7 +128,7 @@ public class AutoRight extends OpMode {
                     timer.reset();
                     timerReset = false;
                 }
-                if (timer.milliseconds() > 750) {
+                if (timer.milliseconds() > 1000) {
                     ScoringClaw.setPosition(0.8);
                 }
                 if (timer.milliseconds() > 1250) {
