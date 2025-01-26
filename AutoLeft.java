@@ -70,8 +70,8 @@ public class AutoLeft extends OpMode {
         ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         ScoringSlidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        beforeScore = new Point(0, 0.1, Point.CARTESIAN);
-        Score = new Point(0, 5, Point.CARTESIAN);
+        beforeScore = new Point(0, -0.1, Point.CARTESIAN);
+        Score = new Point(0, -5, Point.CARTESIAN);
 
 
         gamePreload = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), beforeScore));
@@ -80,22 +80,22 @@ public class AutoLeft extends OpMode {
         scorePreload = new Path(new BezierLine(beforeScore, Score));
         scorePreload.setConstantHeadingInterpolation(0);
 
-        CurveToFirstBlock = new Path(new BezierCurve(Score, beforeScore, new Point(11.7647, 1, Point.CARTESIAN)));
+        CurveToFirstBlock = new Path(new BezierCurve(Score, beforeScore, new Point(-11.7647, -1, Point.CARTESIAN)));
         CurveToFirstBlock.setConstantHeadingInterpolation(0);
 
-        CurveToScoreFirst = new Path(new BezierCurve(new Point(11.7647, 1, Point.CARTESIAN), beforeScore, Score));
+        CurveToScoreFirst = new Path(new BezierCurve(new Point(-11.7647, -1, Point.CARTESIAN), beforeScore, Score));
         CurveToScoreFirst.setConstantHeadingInterpolation(0);
 
-        CurveToSecondBlock = new Path(new BezierCurve(Score, beforeScore, new Point(11.7647, 2, Point.CARTESIAN)));
+        CurveToSecondBlock = new Path(new BezierCurve(Score, beforeScore, new Point(-11.7647, -2, Point.CARTESIAN)));
         CurveToSecondBlock.setConstantHeadingInterpolation(0);
 
-        CurveToScoreSecond = new Path(new BezierCurve(new Point(11.7647, 17.0862, Point.CARTESIAN), beforeScore, Score));
+        CurveToScoreSecond = new Path(new BezierCurve(new Point(-11.7647, -17.0862, Point.CARTESIAN), beforeScore, Score));
         CurveToScoreSecond.setConstantHeadingInterpolation(0);
 
-        CurveToThirdBlock = new Path(new BezierCurve(Score, beforeScore, new Point(27.953, 9.6755, Point.CARTESIAN)));
+        CurveToThirdBlock = new Path(new BezierCurve(Score, beforeScore, new Point(-27.953, -9.6755, Point.CARTESIAN)));
         CurveToThirdBlock.setConstantHeadingInterpolation(1.497);
 
-        CurveToScoreThird = new Path(new BezierCurve(new Point(27.953, 9.6755, Point.CARTESIAN), beforeScore, Score));
+        CurveToScoreThird = new Path(new BezierCurve(new Point(-27.953, -9.6755, Point.CARTESIAN), beforeScore, Score));
         CurveToScoreThird.setConstantHeadingInterpolation(0);
 
     }

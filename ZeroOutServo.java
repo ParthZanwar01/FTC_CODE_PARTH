@@ -31,10 +31,10 @@ public class ZeroOutServo extends OpMode {
     public void loop() {
         //Zeroes out the servo
         if (gamepad1.left_bumper){
-            ScoringArm.setPosition(0.15);
+            SubClaw.setPosition(0.045);
         }
         else if (gamepad1.right_bumper){
-            ScoringArm.setPosition(0.95);
+            SubClaw.setPosition(0.0);
         }
     }
 }

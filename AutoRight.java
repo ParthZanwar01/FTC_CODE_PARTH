@@ -1,6 +1,8 @@
 package pedroPathing.actual_code;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
@@ -25,14 +27,16 @@ public class AutoRight extends OpMode {
 
     private Servo ScoringClaw, ScoringWrist, ScoringArm, SubClaw, SubWrist, SubAngle;
 
-    private Path clipOnFirstClip, PushFirstBlockBack, GrabThirdClip, ParkRobot;
+    private Path clipOnFirstClip, PushFirstBlockBack, GrabThirdClip;
     private Path gamePreload;
-    private Path CurveToFirstBlockPart1, CurveToFirstBlockPart2, CurveToSecondBlock, CurveToPushAndGrabSecond, CurveToHookSecond, CurveToHookThird, CurveToGrabFourth, CurveToHookFourth, CurveToGrabFifth, CurveToHookFifth;
+    private Path CurveToFirstBlockPart1, CurveToFirstBlockPart2, CurveToSecondBlock, CurveToPushAndGrabSecond, CurveToThirdBlock, CurveToPushBackThird, CurveToHookSecond, CurveToHookThird, CurveToGrabFourth, CurveToHookFourth, CurveToGrabFifth, CurveToHookFifth;
 
     ElapsedTime timer = new ElapsedTime();
     boolean timerReset;
     
-    private double ScoringServoPosition = 0.96;
+    private final double ScoringServoPosition = 0.98;
+
+    private final double GrabbingServoPosition = 0.03;
 
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
@@ -49,34 +53,37 @@ public class AutoRight extends OpMode {
         SubWrist = hardwareMap.get(Servo.class, "SubWrist");
         SubClaw = hardwareMap.get(Servo.class, "SubClaw");
 
-
-        gamePreload = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), new Point(-15, -3, Point.CARTESIAN)));
+        gamePreload = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), new Point(15, 3, Point.CARTESIAN)));
         gamePreload.setConstantHeadingInterpolation(0);
-        clipOnFirstClip = new Path(new BezierLine(new Point(-15,-3, Point.CARTESIAN), new Point(-31.5,-17, Point.CARTESIAN)));
+        clipOnFirstClip = new Path(new BezierLine(new Point(15,3, Point.CARTESIAN), new Point(31,20, Point.CARTESIAN)));
         clipOnFirstClip.setConstantHeadingInterpolation(0);
-        CurveToFirstBlockPart1 = new Path(new BezierCurve(new Point(-31.5, -17, Point.CARTESIAN), new Point(-3, 21.13, Point.CARTESIAN)));
+        CurveToFirstBlockPart1 = new Path(new BezierCurve(new Point(31, 20, Point.CARTESIAN), new Point(20,20, Point.CARTESIAN), new Point(3, -21.13, Point.CARTESIAN)));
         CurveToFirstBlockPart1.setConstantHeadingInterpolation(0);
-        CurveToFirstBlockPart2 = new Path(new BezierCurve(new Point(-3, 21.13, Point.CARTESIAN), new Point(-55, 21.13, Point.CARTESIAN), new Point(-55, 30.00, Point.CARTESIAN)));
+        CurveToFirstBlockPart2 = new Path(new BezierCurve(new Point(3, -21.13, Point.CARTESIAN), new Point(55, -21.13, Point.CARTESIAN), new Point(48, -30.00, Point.CARTESIAN)));
         CurveToFirstBlockPart2.setConstantHeadingInterpolation(0);
-        PushFirstBlockBack = new Path(new BezierLine(new Point(-55, 30.00, Point.CARTESIAN), new Point(-5, 30.00, Point.CARTESIAN)));
+        PushFirstBlockBack = new Path(new BezierLine(new Point(48, -30.00, Point.CARTESIAN), new Point(6, -30.00, Point.CARTESIAN)));
         PushFirstBlockBack.setConstantHeadingInterpolation(0);
-        CurveToSecondBlock = new Path(new BezierCurve(new Point(-5, 30.0, Point.CARTESIAN), new Point(-55, 28.0, Point.CARTESIAN), new Point(-55, 37.00, Point.CARTESIAN)));
+        CurveToSecondBlock = new Path(new BezierCurve(new Point(6, -30.0, Point.CARTESIAN), new Point(50, -32, Point.CARTESIAN), new Point(48, -41.00, Point.CARTESIAN)));
         CurveToSecondBlock.setConstantHeadingInterpolation(0);
-        CurveToPushAndGrabSecond = new Path(new BezierCurve(new Point(-52, 41.0, Point.CARTESIAN), new Point(-4.3, 41.0, Point.CARTESIAN)));
+        CurveToPushAndGrabSecond = new Path(new BezierCurve(new Point(48, -41.0, Point.CARTESIAN), new Point(6.7, -41.0, Point.CARTESIAN)));
         CurveToPushAndGrabSecond.setConstantHeadingInterpolation(0);
-        CurveToHookSecond = new Path(new BezierCurve(new Point(-5, 25.42, Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-31, -17, Point.CARTESIAN)));
+        CurveToThirdBlock = new Path(new BezierCurve(new Point(6.7, -41.0, Point.CARTESIAN), new Point(48, -43.0, Point.CARTESIAN), new Point(48, -46, Point.CARTESIAN)));
+        CurveToThirdBlock.setConstantHeadingInterpolation(0);
+        CurveToPushBackThird = new Path(new BezierCurve(new Point(48, -46, Point.CARTESIAN), new Point(2.5, -46, Point.CARTESIAN)));
+        CurveToPushBackThird.setConstantHeadingInterpolation(0);
+        CurveToHookSecond = new Path(new BezierCurve(new Point(2.5, -46, Point.CARTESIAN), new Point(15, 10, Point.CARTESIAN), new Point(29, 19, Point.CARTESIAN)));
         CurveToHookSecond.setConstantHeadingInterpolation(0);
-        GrabThirdClip = new Path(new BezierCurve(new Point(-31, -17, Point.CARTESIAN), new Point(-15,0, Point.CARTESIAN), new Point(-4.9, 20.00, Point.CARTESIAN)));
+        GrabThirdClip = new Path(new BezierCurve(new Point(29, 19, Point.CARTESIAN), new Point( 20, 19, Point.CARTESIAN), new Point(15,6, Point.CARTESIAN), new Point(3, -18.00, Point.CARTESIAN)));
         GrabThirdClip.setConstantHeadingInterpolation(0);
-        CurveToHookThird = new Path(new BezierCurve(new Point(-5, 20.00, Point.CARTESIAN), new Point(-10,0,Point.CARTESIAN),new Point(-15, -6, Point.CARTESIAN), new Point(-32, -15, Point.CARTESIAN)));
+        CurveToHookThird = new Path(new BezierCurve(new Point(3, -18.00, Point.CARTESIAN), new Point(10,6,Point.CARTESIAN),new Point(15, 5, Point.CARTESIAN), new Point(32.5, 16, Point.CARTESIAN)));
         CurveToHookThird.setConstantHeadingInterpolation(0);
-        CurveToGrabFourth = new Path(new BezierCurve(new Point(-32, -9, Point.CARTESIAN), new Point(-10, 0, Point.CARTESIAN), new Point(-7.1,10, Point.CARTESIAN), new Point(-4.9, 20.0, Point.CARTESIAN)));
+        CurveToGrabFourth = new Path(new BezierCurve(new Point(32.5, 14, Point.CARTESIAN), new Point(15, 0, Point.CARTESIAN), new Point(5,-10, Point.CARTESIAN), new Point(3.75, -18.0, Point.CARTESIAN)));
         CurveToGrabFourth.setConstantHeadingInterpolation(0);
-        CurveToHookFourth = new Path(new BezierCurve(new Point(-5.5, 20.0, Point.CARTESIAN),new Point(-10,7 , Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-32, -12, Point.CARTESIAN)));
+        CurveToHookFourth = new Path(new BezierCurve(new Point(3.75, -18.0, Point.CARTESIAN), new Point(10,3, Point.CARTESIAN), new Point(15, 6, Point.CARTESIAN), new Point(32.5, 14, Point.CARTESIAN)));
         CurveToHookFourth.setConstantHeadingInterpolation(0);
-        CurveToGrabFifth = new Path(new BezierCurve(new Point(-32, -9, Point.CARTESIAN), new Point(-10, 0, Point.CARTESIAN), new Point(-7.1,10, Point.CARTESIAN), new Point(-4.9, 20.0, Point.CARTESIAN)));
+        CurveToGrabFifth = new Path(new BezierCurve(new Point(32, 13, Point.CARTESIAN), new Point(10, 6, Point.CARTESIAN), new Point(7.1,-10, Point.CARTESIAN), new Point(4, -18.0, Point.CARTESIAN)));
         CurveToGrabFifth.setConstantHeadingInterpolation(0);
-        CurveToHookFifth = new Path(new BezierCurve(new Point(-5.5, 20.0, Point.CARTESIAN),new Point(-10,7 , Point.CARTESIAN), new Point(-15, -6, Point.CARTESIAN), new Point(-32, -12, Point.CARTESIAN)));
+        CurveToHookFifth = new Path(new BezierCurve(new Point(4, -18.0, Point.CARTESIAN),new Point(10,3 , Point.CARTESIAN), new Point(15, 6, Point.CARTESIAN), new Point(33, 12, Point.CARTESIAN)));
         CurveToHookFifth.setConstantHeadingInterpolation(0);
         follower.setMaxPower(1.0);
         timerReset = true;
@@ -90,6 +97,7 @@ public class AutoRight extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        telemetry.addData("Pose: ", follower.getPose());
         autonomousPathUpdate();
     }
 
@@ -118,7 +126,7 @@ public class AutoRight extends OpMode {
                     timerReset = false;
                 }
 
-                if (timer.milliseconds() > 0) {
+                if (gamePreload.isAtParametricEnd()) {
                     follower.followPath(clipOnFirstClip, true);
                     setStep(2);
                     timerReset = true;
@@ -130,10 +138,8 @@ public class AutoRight extends OpMode {
                     timer.reset();
                     timerReset = false;
                 }
-                if (timer.milliseconds() > 1000) {
+                if (clipOnFirstClip.isAtParametricEnd()) {
                     ScoringClaw.setPosition(0.8);
-                }
-                if (timer.milliseconds() > 1250) {
                     follower.followPath(CurveToFirstBlockPart1, true);
                     setStep(3);
                     timerReset = true;
@@ -145,7 +151,7 @@ public class AutoRight extends OpMode {
                     timer.reset();
                     timerReset = false;
                 }
-                if (timer.milliseconds() > 1000) {
+                if (CurveToFirstBlockPart1.isAtParametricEnd()) {
                     follower.followPath(CurveToFirstBlockPart2, true);
                     setStep(4);
                     timerReset = true;
@@ -157,7 +163,7 @@ public class AutoRight extends OpMode {
                     timer.reset();
                     timerReset = false;
                 }
-                if (timer.milliseconds() > 1500) {
+                if (CurveToFirstBlockPart2.isAtParametricEnd()) {
                     follower.followPath(PushFirstBlockBack, true);
                     setStep(5);
                     timerReset = true;
@@ -169,7 +175,7 @@ public class AutoRight extends OpMode {
                     timer.reset();
                     timerReset = false;
                 }
-                if (timer.milliseconds() > 1250) {
+                if (PushFirstBlockBack.isAtParametricEnd()) {
                     follower.followPath(CurveToSecondBlock, true);
                     timerReset = true;
                     setStep(6);
@@ -182,16 +188,10 @@ public class AutoRight extends OpMode {
                     timerReset = false;
                 }
 
-                if (timer.milliseconds() > 0 && timer.milliseconds() < 1000) {
-                    ScoringWrist.setPosition(ScoringServoPosition);
-                    ScoringArm.setPosition(0.15);
-                }
-
-                if (timer.milliseconds() > 2000) {
+                if (CurveToSecondBlock.isAtParametricEnd()) {
                     follower.followPath(CurveToPushAndGrabSecond, true);
                     timerReset = true;
                     setStep(7);
-                    follower.setMaxPower(1.0);
                 }
                 break;
             }
@@ -201,18 +201,24 @@ public class AutoRight extends OpMode {
                     timerReset = false;
                 }
 
-                if (timer.milliseconds() > 1500) {
-                    ScoringWrist.setPosition(0.13);
+                if (CurveToPushAndGrabSecond.isAtParametricEnd()) {
+                    ScoringArm.setPosition(0.15);
+                    follower.followPath(CurveToThirdBlock, true);
+                    timerReset = true;
+                    setStep(8);
                 }
-                if (timer.milliseconds() > 2000) {
-                    ScoringClaw.setPosition(0.55);
+                break;
+            }
+            case (8):{
+                if (timerReset) {
+                    timer.reset();
+                    timerReset = false;
                 }
-                if (timer.milliseconds() > 2500) {
+
+                if (CurveToThirdBlock.isAtParametricEnd()) {
                     ScoringWrist.setPosition(ScoringServoPosition);
-                    ScoringArm.setPosition(0.95);
-                }
-                if (timer.milliseconds() > 3000) {
-                    follower.followPath(CurveToHookSecond, true);
+
+                    follower.followPath(CurveToPushBackThird, true);
                     timerReset = true;
                     setStep(9);
                 }
@@ -224,12 +230,17 @@ public class AutoRight extends OpMode {
                     timerReset = false;
                 }
 
-                if (timer.milliseconds() > 2200) {
-                    ScoringClaw.setPosition(0.8);
+                if (timer.milliseconds() > 0) {
+                    ScoringWrist.setPosition(GrabbingServoPosition);
                 }
-                if (timer.milliseconds() > 2600) {
-                    ScoringArm.setPosition(0.15);
-                    follower.followPath(GrabThirdClip, true);
+
+                if (timer.milliseconds() > 1600){
+                    ScoringClaw.setPosition(0.55);
+                }
+                if (timer.milliseconds() > 2400) {
+                    ScoringWrist.setPosition(ScoringServoPosition);
+                    ScoringArm.setPosition(0.95);
+                    follower.followPath(CurveToHookSecond, true);
                     timerReset = true;
                     setStep(10);
                 }
@@ -240,14 +251,27 @@ public class AutoRight extends OpMode {
                     timer.reset();
                     timerReset = false;
                 }
+                if (CurveToHookSecond.isAtParametricEnd()) {
+                    ScoringClaw.setPosition(0.8);
+                    follower.followPath(GrabThirdClip, true);
+                    timerReset = true;
+                    setStep(11);
+                }
+                break;
+            }
+            case (11): {
+                if (timerReset) {
+                    timer.reset();
+                    timerReset = false;
+                }
                 if (timer.milliseconds() > 0 && timer.milliseconds() < 2000) {
                     ScoringWrist.setPosition(ScoringServoPosition);
                 }
                 if (timer.milliseconds() > 1000 && timer.milliseconds() < 5000) {
                     ScoringArm.setPosition(0.15);
                 }
-                if (timer.milliseconds() > 2000 && timer.milliseconds() < 5000) {
-                    ScoringWrist.setPosition(0.13);
+                if (timer.milliseconds() > 2000 && timer.milliseconds() < 3000) {
+                    ScoringWrist.setPosition(GrabbingServoPosition);
                 }
                 if (timer.milliseconds() > 2500) {
                     ScoringClaw.setPosition(0.50);
@@ -269,12 +293,9 @@ public class AutoRight extends OpMode {
                     timerReset = false;
                 }
 
-                if (timer.milliseconds() > 2150) {
+                if (CurveToHookThird.isAtParametricEnd()) {
                     ScoringClaw.setPosition(0.8);
-                }
-
-                if (timer.milliseconds() > 2350) {
-                    ScoringArm.setPosition(0.15);
+                    telemetry.update();
                     follower.followPath(CurveToGrabFourth, true);
                     timerReset = true;
                     setStep(13);
@@ -293,8 +314,8 @@ public class AutoRight extends OpMode {
                 if (timer.milliseconds() > 1000 && timer.milliseconds() < 5000) {
                     ScoringArm.setPosition(0.15);
                 }
-                if (timer.milliseconds() > 2000 && timer.milliseconds() < 5000) {
-                    ScoringWrist.setPosition(0.12);
+                if (timer.milliseconds() > 2000 && timer.milliseconds() < 3000) {
+                    ScoringWrist.setPosition(GrabbingServoPosition);
                 }
                 if (timer.milliseconds() > 2500) {
                     ScoringClaw.setPosition(0.55);
@@ -317,12 +338,8 @@ public class AutoRight extends OpMode {
                     timerReset = false;
                 }
 
-                if (timer.milliseconds() > 1900) {
+                if (CurveToHookFourth.isAtParametricEnd()) {
                     ScoringClaw.setPosition(0.8);
-                }
-
-                if (timer.milliseconds() > 2000) {
-                    ScoringArm.setPosition(0.15);
                     follower.followPath(CurveToGrabFifth, true);
                     timerReset = true;
                     setStep(15);
@@ -341,8 +358,8 @@ public class AutoRight extends OpMode {
                 if (timer.milliseconds() > 1000 && timer.milliseconds() < 5000) {
                     ScoringArm.setPosition(0.15);
                 }
-                if (timer.milliseconds() > 2000 && timer.milliseconds() < 5000) {
-                    ScoringWrist.setPosition(0.12);
+                if (timer.milliseconds() > 2000 && timer.milliseconds() < 3000) {
+                    ScoringWrist.setPosition(GrabbingServoPosition);
                 }
                 if (timer.milliseconds() > 2500) {
                     ScoringClaw.setPosition(0.55);
@@ -354,11 +371,16 @@ public class AutoRight extends OpMode {
 
                 if (timer.milliseconds() > 3500) {
                     follower.followPath(CurveToHookFifth, true);
-                    setStep(14);
+                    setStep(16);
                     timerReset = true;
                 }
                 break;
-
+            }
+            case (16): {
+                if (CurveToHookFifth.isAtParametricEnd()){
+                    ScoringClaw.setPosition(0.8);
+                }
+                break;
             }
         }
     }

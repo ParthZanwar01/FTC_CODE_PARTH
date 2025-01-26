@@ -77,7 +77,7 @@ public class MainCode extends OpMode {
 
         // Normalize powers if any value is greater than 1.0
         double maxPower = Math.max(Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower)), Math.max(Math.abs(backLeftPower), Math.abs(backRightPower)));
-        if (maxPower > 1.0) {
+        if (maxPower > 0.7) {
             frontLeftPower /= maxPower;
             frontRightPower /= maxPower;
             backLeftPower /= maxPower;
@@ -114,7 +114,7 @@ public class MainCode extends OpMode {
             if (timer.milliseconds() > 0) ScoringWrist.setPosition(1);
             if (timer.milliseconds() > 1000) ScoringArm.setPosition(0.15);
             if (timer.milliseconds() > 2000) {
-                ScoringWrist.setPosition(0.14);
+                ScoringWrist.setPosition(0.04);
                 pressed = false;
             }
         }
@@ -137,7 +137,7 @@ public class MainCode extends OpMode {
 
         // To open the claw
         if (gamepad2.b) {
-            SubClaw.setPosition(0.0);
+            SubClaw.setPosition(0.01);
         }
 
         // To close the claw
@@ -185,7 +185,7 @@ public class MainCode extends OpMode {
 
 
         if (gamepad1.dpad_up) {
-            SubSlides.setPower(1.0);;
+            SubSlides.setPower(1.0);
         } else if (gamepad1.dpad_down) {
             SubSlides.setPower(-1.0);
         } else {
@@ -199,14 +199,14 @@ public class MainCode extends OpMode {
 
         if (transferPressed) {
             if (timer.milliseconds() > 0 && timer.milliseconds() < 500) {
-                moveSubSlidesInches(1.0, 8, false);
+                moveSubSlidesInches(1.0, 11.5, false);
             }
             if (timer.milliseconds() > 0 && timer.milliseconds() < 3000) {
                 SubAngle.setPosition(0.2);
                 SubWrist.setPosition(0.33);
             }
             if (timer.milliseconds() > 500 && timer.milliseconds() < 1000) {
-                SubClaw.setPosition(0.031);
+                SubClaw.setPosition(0.037);
             }
             if (timer.milliseconds() > 1000) {
                 SubClaw.setPosition(0.045);
@@ -215,11 +215,11 @@ public class MainCode extends OpMode {
                 ScoringWrist.setPosition(1.0);
             }
             if (timer.milliseconds() > 2500 && timer.milliseconds() < 4000) {
-                ScoringArm.setPosition(0.15);
+                ScoringArm.setPosition(0.95);
                 ScoringClaw.setPosition(0.8);
             }
             if (timer.milliseconds() > 3000) {
-                ScoringWrist.setPosition(0.16);
+                ScoringWrist.setPosition(0.13);
                 SubAngle.setPosition(0.85);
             }
 
@@ -231,7 +231,7 @@ public class MainCode extends OpMode {
             }
             if (timer.milliseconds() > 4500) {
                 SubClaw.setPosition(0.0);
-                ScoringWrist.setPosition(0.5);
+                ScoringWrist.setPosition(0.96);
             }
             if (timer.milliseconds() > 5000) {
                 moveScoringSlidesInches(1.0, 3161);
