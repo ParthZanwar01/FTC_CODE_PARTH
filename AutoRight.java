@@ -34,7 +34,7 @@ public class AutoRight extends OpMode {
     ElapsedTime timer = new ElapsedTime();
     boolean timerReset;
     
-    private final double ScoringServoPosition = 0.98;
+    private final double ScoringServoPosition = 0.96;
 
     private final double GrabbingServoPosition = 0.03;
 
@@ -77,11 +77,11 @@ public class AutoRight extends OpMode {
         GrabThirdClip.setConstantHeadingInterpolation(0);
         CurveToHookThird = new Path(new BezierCurve(new Point(3, -18.00, Point.CARTESIAN), new Point(10,6,Point.CARTESIAN),new Point(15, 5, Point.CARTESIAN), new Point(32.5, 16, Point.CARTESIAN)));
         CurveToHookThird.setConstantHeadingInterpolation(0);
-        CurveToGrabFourth = new Path(new BezierCurve(new Point(32.5, 14, Point.CARTESIAN), new Point(15, 0, Point.CARTESIAN), new Point(5,-10, Point.CARTESIAN), new Point(3.75, -18.0, Point.CARTESIAN)));
+        CurveToGrabFourth = new Path(new BezierCurve(new Point(32.5, 16, Point.CARTESIAN), new Point( 20, 16, Point.CARTESIAN), new Point(15, 0, Point.CARTESIAN), new Point(5,-10, Point.CARTESIAN), new Point(3.75, -18.0, Point.CARTESIAN)));
         CurveToGrabFourth.setConstantHeadingInterpolation(0);
         CurveToHookFourth = new Path(new BezierCurve(new Point(3.75, -18.0, Point.CARTESIAN), new Point(10,3, Point.CARTESIAN), new Point(15, 6, Point.CARTESIAN), new Point(32.5, 14, Point.CARTESIAN)));
         CurveToHookFourth.setConstantHeadingInterpolation(0);
-        CurveToGrabFifth = new Path(new BezierCurve(new Point(32, 13, Point.CARTESIAN), new Point(10, 6, Point.CARTESIAN), new Point(7.1,-10, Point.CARTESIAN), new Point(4, -18.0, Point.CARTESIAN)));
+        CurveToGrabFifth = new Path(new BezierCurve(new Point(32, 14, Point.CARTESIAN), new Point( 20, 14, Point.CARTESIAN), new Point(10, 6, Point.CARTESIAN), new Point(7.1,-10, Point.CARTESIAN), new Point(4, -18.0, Point.CARTESIAN)));
         CurveToGrabFifth.setConstantHeadingInterpolation(0);
         CurveToHookFifth = new Path(new BezierCurve(new Point(4, -18.0, Point.CARTESIAN),new Point(10,3 , Point.CARTESIAN), new Point(15, 6, Point.CARTESIAN), new Point(33, 12, Point.CARTESIAN)));
         CurveToHookFifth.setConstantHeadingInterpolation(0);

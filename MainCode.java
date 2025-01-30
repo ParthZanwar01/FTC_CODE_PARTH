@@ -23,6 +23,13 @@ public class MainCode extends OpMode {
     boolean pressed = false;
     boolean transferPressed = false;
 
+    boolean moveUp = false;
+    boolean moveDown= false;
+
+    private  double ScoringServoPosition = 0.96;
+
+    private  double GrabbingServoPosition = 0.03;
+
 
     @Override
     public void init() {
@@ -114,21 +121,21 @@ public class MainCode extends OpMode {
             if (timer.milliseconds() > 0) ScoringWrist.setPosition(1);
             if (timer.milliseconds() > 1000) ScoringArm.setPosition(0.15);
             if (timer.milliseconds() > 2000) {
-                ScoringWrist.setPosition(0.04);
+                ScoringWrist.setPosition(GrabbingServoPosition);
                 pressed = false;
             }
         }
 
         // To score the specimen
         else if (gamepad2.left_trigger > 0.1) {
-            ScoringWrist.setPosition(0.96);
+            ScoringWrist.setPosition(ScoringServoPosition);
             ScoringArm.setPosition(0.95);
         }
 
         // To close the claw
         if (gamepad2.left_bumper) {
 
-            ScoringClaw.setPosition(0.55);
+            ScoringClaw.setPosition(0.45);
         }
         // To open the claw
         else if (gamepad2.right_bumper) {
@@ -238,7 +245,28 @@ public class MainCode extends OpMode {
                 transferPressed = false;
             }
         }
+
+        if (gamepad1.left_bumper){
+            moveUp = true;
+        }
+
+        if (moveUp){
+            ScoringServoPosition+=0.01;
+            ScoringWrist.setPosition(ScoringServoPosition);
+            moveUp = false;
+        }
+
+        if (gamepad1.right_bumper){
+            moveDown =true;
+        }
+
+        if (moveDown){
+            ScoringServoPosition-=0.01;
+            ScoringWrist.setPosition(ScoringServoPosition);
+            moveDown = false;
+        }
     }
+
 
     public void moveSubSlidesInches(double power, double inches, boolean hold) {
         int targetPosition = (int) (inches * COUNTS_PER_INCH_SubSlides);

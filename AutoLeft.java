@@ -40,7 +40,6 @@ public class AutoLeft extends OpMode {
     private Servo ScoringClaw, ScoringWrist, ScoringArm, SubClaw, SubWrist, SubAngle;
     private DcMotor ScoringSlidesMotor, SubSlides;
     private Point beforeScore, Score;
-    private Path scorePreload;
     private Path gamePreload;
     private Path CurveToFirstBlock, CurveToScoreFirst, CurveToSecondBlock, CurveToScoreSecond, CurveToThirdBlock, CurveToScoreThird;
 
@@ -52,6 +51,8 @@ public class AutoLeft extends OpMode {
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
+        ScoringSlideReset = true;
+        timerReset = true;
         ScoringWrist = hardwareMap.get(Servo.class, "ScoringWrist");
         ScoringArm = hardwareMap.get(Servo.class, "ScoringArm");
         ScoringClaw = hardwareMap.get(Servo.class, "ScoringClaw");
@@ -69,39 +70,25 @@ public class AutoLeft extends OpMode {
         ScoringSlidesMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         ScoringSlidesMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         ScoringSlidesMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        SubSlides.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        SubSlides.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        SubSlides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        beforeScore = new Point(0, -0.1, Point.CARTESIAN);
-        Score = new Point(0, -5, Point.CARTESIAN);
+        beforeScore = new Point(2.5, -0.5, Point.CARTESIAN);
+        Score = new Point(5, -0.5, Point.CARTESIAN);
 
-
-        gamePreload = new Path(new BezierLine(new Point(0, 0, Point.CARTESIAN), beforeScore));
+        // Creating Paths
+        gamePreload = new Path(new BezierCurve(new Point(0, 0, Point.CARTESIAN), beforeScore, Score));
         gamePreload.setConstantHeadingInterpolation(0);
-
-        scorePreload = new Path(new BezierLine(beforeScore, Score));
-        scorePreload.setConstantHeadingInterpolation(0);
-
-        CurveToFirstBlock = new Path(new BezierCurve(Score, beforeScore, new Point(-11.7647, -1, Point.CARTESIAN)));
-        CurveToFirstBlock.setConstantHeadingInterpolation(0);
-
-        CurveToScoreFirst = new Path(new BezierCurve(new Point(-11.7647, -1, Point.CARTESIAN), beforeScore, Score));
-        CurveToScoreFirst.setConstantHeadingInterpolation(0);
-
-        CurveToSecondBlock = new Path(new BezierCurve(Score, beforeScore, new Point(-11.7647, -2, Point.CARTESIAN)));
-        CurveToSecondBlock.setConstantHeadingInterpolation(0);
-
-        CurveToScoreSecond = new Path(new BezierCurve(new Point(-11.7647, -17.0862, Point.CARTESIAN), beforeScore, Score));
-        CurveToScoreSecond.setConstantHeadingInterpolation(0);
-
-        CurveToThirdBlock = new Path(new BezierCurve(Score, beforeScore, new Point(-27.953, -9.6755, Point.CARTESIAN)));
-        CurveToThirdBlock.setConstantHeadingInterpolation(1.497);
-
-        CurveToScoreThird = new Path(new BezierCurve(new Point(-27.953, -9.6755, Point.CARTESIAN), beforeScore, Score));
-        CurveToScoreThird.setConstantHeadingInterpolation(0);
+        CurveToFirstBlock = new Path(new BezierCurve(Score, beforeScore, new Point(7.864, -4.07, Point.CARTESIAN)));
+        CurveToFirstBlock.setConstantHeadingInterpolation(4.7753);
 
     }
 
     public void loop() {
         follower.update();
+        telemetry.addData("Pose: ", follower.getPose());
+        telemetry.addData("Heading: ", follower.getPose().getHeading());
         autonomousUpdate();
     }
 
@@ -112,97 +99,71 @@ public class AutoLeft extends OpMode {
     public void autonomousUpdate() {
         switch (step) {
             case (0): {
-                follower.followPath(gamePreload);
-                setStep(1);
-                timerReset = true;
-                ScoringSlideReset = true;
-                SubSlideReset = true;
-                break;
+                if (timerReset){
+                    timer.reset();
+                    ScoringWrist.setPosition(0.95);
+                    ScoringArm.setPosition(1.0);
+                    timerReset = false;
+                }
+
+                if (ScoringSlideReset){
+                    moveScoringSlidesInches(1.0, 3161);
+                    ScoringSlideReset = false;
+                }
+                if (timer.milliseconds() > 0){
+                    ScoringWrist.setPosition(0.95);
+                    ScoringClaw.setPosition(0.55);
+                    ScoringArm.setPosition(1.0);
+                }
+
+                if (timer.milliseconds() > 1000) {
+                    follower.followPath(gamePreload, true);
+                    timerReset = true;
+                    SubSlideReset = true;
+                    ScoringSlideReset = true;
+                    setStep(1);
+                }
             }
-            case (1): {
-                if (timerReset) {
+            case (1) : {
+                if (timerReset){
                     timer.reset();
                     timerReset = false;
                 }
-                if (timer.milliseconds() > 0) {
-                    ScoringClaw.setPosition(0.55);
-                    ScoringWrist.setPosition(0.9);
+                if (gamePreload.isAtParametricEnd()){
+                    ScoringClaw.setPosition(0.8);
                 }
-                if (timer.milliseconds() > 500) {
-                    ScoringArm.setPosition(0.5);
-                }
-                if (timer.milliseconds() > 1000) {
-                    if (ScoringSlideReset) {
-                        moveScoringSlidesInches(1.0, 3161);
-                        ScoringSlideReset = false;
-                    }
-                }
-                if (timer.milliseconds() > 3000) {
-                    follower.followPath(scorePreload);
+                if (timer.milliseconds() > 2000){
+                    follower.followPath(CurveToFirstBlock);
                     timerReset = true;
+                    SubSlideReset = true;
                     ScoringSlideReset = true;
                     setStep(2);
                 }
-                break;
             }
-
             case (2): {
-                if (timerReset) {
-                    timer.reset();
-                    timerReset = false;
-                }
-
-                if (timer.milliseconds() > 1000) {
-                    ScoringClaw.setPosition(0.8);
-                }
-
-                if (timer.milliseconds() > 2000) {
-                    follower.followPath(CurveToFirstBlock);
-                    setStep(3);
-                    timerReset = true;
-                }
-                break;
-            }
-            case (3): {
-                if (timerReset) {
-                    timer.reset();
-                    timerReset = false;
-                }
-
-                if (timer.milliseconds() > 0) {
-                    if (ScoringSlideReset) {
+                if (CurveToFirstBlock.isAtParametricEnd()){
+                    if (timerReset){
+                        timer.reset();
+                        timerReset = false;
+                    }
+                    if (ScoringSlideReset){
                         moveScoringSlidesInches(1.0, 0);
                         ScoringSlideReset = false;
                     }
-                }
-
-                if (timer.milliseconds() > 1000) {
                     if (SubSlideReset){
-                        moveSubSlidesInches(1.0, 2300);
+                        moveSubSlidesInches(1.0, 1555);
                         SubSlideReset = false;
                     }
-                }
 
-                if (timer.milliseconds() > 1500){
-                    SubWrist.setPosition(0.0);
-                    SubWrist.setPosition(0.66);
+                    if (timer.milliseconds() > 100){
+                        SubWrist.setPosition(0.66);
+                        SubAngle.setPosition(0.2);
+                    }
+                    if (!SubSlides.isBusy()){
+                        SubClaw.setPosition(0.045);
+                        setStep(-1);
+                    }
                 }
-
-                if (timer.milliseconds() > 2000){
-                    SubClaw.setPosition(0.045);
-                }
-                if (timer.milliseconds() > 2500){
-                    SubWrist.setPosition(0.0);
-                    moveSubSlidesInches(1.0, 0);
-                }
-
-                if (timer.milliseconds() > 3000){
-                    setStep(-1);
-                    SubSlideReset = true;
-                    ScoringSlideReset = true;
-                    timerReset = true;
-                }
-                break;
             }
         }
     }
